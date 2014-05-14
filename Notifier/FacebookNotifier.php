@@ -3,7 +3,6 @@
 /**
  *
  * @author:  Gabriel BONDAZ <gabriel.bondaz@idci-consulting.fr>
- * @author:  Sekou KOÏTA <sekou.koita@supinfo.com>
  * @author:  Pichet PUTH <pichet.puth@utt.fr>
  * @license: GPL
  *
@@ -12,6 +11,7 @@
 namespace IDCI\Bundle\NotificationBundle\Notifier;
 
 use IDCI\Bundle\NotificationBundle\Entity\Notification;
+use IDCI\Bundle\NotificationBundle\Exception\FacebookNotifierException;
 
 class FacebookNotifier extends AbstractNotifier
 {
@@ -26,11 +26,28 @@ class FacebookNotifier extends AbstractNotifier
     /**
      * {@inheritdoc}
      */
+    public function getToFields()
+    {
+        return false;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function getFromFields()
     {
         return array(
-            'login'    => array('text', array('required' => true)),
-            'password' => array('text', array('required' => true))
+            'appId' => array('text', array('required' => false))
+        );
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getContentFields()
+    {
+        return array(
+            'message' => array('textarea', array('required' => true))
         );
     }
 }
