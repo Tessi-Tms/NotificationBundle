@@ -1,5 +1,20 @@
+# Da api client configuration
 da_api_client:
     api:
         twitter:
             endpoint_root: 'https://api.twitter.com/1.1'
             cache_enabled: false
+
+# RabbitMQ configuration
+old_sound_rabbit_mq:
+    producers:
+        notification_processing:
+            connection:       default
+            exchange_options: {name: 'notification_processing', type: direct}
+    consumers:
+        notification_processing:
+            connection:       default
+            exchange_options: {name: 'notification_processing', type: direct}
+            queue_options:    {name: 'notification_processing'}
+            callback:         idci_notification.consumer.notification
+            qos_options:      {prefetch_size: 0, prefetch_count: 1, global: false}

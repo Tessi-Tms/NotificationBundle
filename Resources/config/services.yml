@@ -1,7 +1,7 @@
 services:
     idci_notification.manager.notification:
         class: IDCI\Bundle\NotificationBundle\Manager\NotificationManager
-        arguments: [@doctrine.orm.entity_manager, @event_dispatcher]
+        arguments: [@doctrine.orm.entity_manager, @event_dispatcher, @old_sound_rabbit_mq.notification_processing_producer]
 
     idci_notification.manager.notifierconfiguration:
         class: IDCI\Bundle\NotificationBundle\Manager\NotifierConfigurationManager
@@ -68,7 +68,12 @@ services:
             - { name: idci_notification.notifier, alias: push_ios }
 
     idci_notification.notifier.push_android:
-            class: IDCI\Bundle\NotificationBundle\Notifier\PushAndroidNotifier
-            arguments: [@doctrine.orm.entity_manager, %idci_notification.default_configuration.push_android%]
-            tags:
-                - { name: idci_notification.notifier, alias: push_android }
+        class: IDCI\Bundle\NotificationBundle\Notifier\PushAndroidNotifier
+        arguments: [@doctrine.orm.entity_manager, %idci_notification.default_configuration.push_android%]
+        tags:
+            - { name: idci_notification.notifier, alias: push_android }
+
+    ## RabbitMQ Consumer
+    idci_notification.consumer.notification:
+        class: IDCI\Bundle\NotificationBundle\Consumer\NotificationProcessingConsumer
+        arguments: [@idci_notification.manager.notification]
