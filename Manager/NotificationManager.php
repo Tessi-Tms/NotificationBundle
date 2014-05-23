@@ -18,20 +18,22 @@ use IDCI\Bundle\NotificationBundle\Event\NotificationEvent;
 use IDCI\Bundle\NotificationBundle\Event\NotificationEvents;
 use IDCI\Bundle\NotificationBundle\Exception\UndefinedNotifierException;
 use IDCI\Bundle\NotificationBundle\Exception\NotificationParametersParseErrorException;
+use OldSound\RabbitMqBundle\RabbitMq\Producer;
 
 class NotificationManager extends AbstractManager
 {
     protected $notifiers;
-
+    protected $notificationProcessingProducer;
     /**
      * Constructor
      *
      * @param ObjectManager $objectManager
      * @param EventDispatcherInterface $entityManager
      */
-    public function __construct(ObjectManager $objectManager, EventDispatcherInterface $eventDispatcher)
+    public function __construct(ObjectManager $objectManager, EventDispatcherInterface $eventDispatcher, Producer $notificationProcessingProducer)
     {
         parent::__construct($objectManager, $eventDispatcher);
+        $this->notificationProcessingProducer = $notificationProcessingProducer;
         $this->notifiers = array();
     }
 
@@ -59,6 +61,8 @@ class NotificationManager extends AbstractManager
         );
 
         parent::add($entity);
+        //TO DISCUSS : entity not necessairely a notification
+        $this->enqueueNotification($entity);
 
         $this->getEventDispatcher()->dispatch(
             NotificationEvents::POST_CREATE,
@@ -80,6 +84,8 @@ class NotificationManager extends AbstractManager
         );
 
         parent::update($entity);
+        //TO DISCUSS : entity not necessairely a notification
+        $this->enqueueNotification($entity);
 
         $this->getEventDispatcher()->dispatch(
             NotificationEvents::POST_UPDATE,
@@ -191,6 +197,7 @@ class NotificationManager extends AbstractManager
 
         $this->getObjectManager()->persist($notification);
         $this->getObjectManager()->flush();
+        $this->enqueueNotification($notification);
     }
 
     /**
@@ -208,7 +215,19 @@ class NotificationManager extends AbstractManager
             $notification->setStatus(Notification::STATUS_ERROR);
             $notification->addLog($e->getMessage());
         }
+
         $this->getObjectManager()->persist($notification);
         $this->getObjectManager()->flush();
+    }
+
+    /**
+     * Enqueue an notification
+     *
+     * @param Notification $notification
+     */
+    public function enqueueNotification(Notification $notification)
+    {
+        $message = array('notificationId' => $notification->getId());
+        $this->notificationProcessingProducer->publish(serialize($message));
     }
 }
