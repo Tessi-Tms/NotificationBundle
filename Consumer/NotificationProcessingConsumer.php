@@ -1,5 +1,13 @@
 <?php
 
+/**
+ *
+ * @author:  Gabriel BONDAZ <gabriel.bondaz@idci-consulting.fr>
+ * @author:  Pichet PUTH <pichet.puth@utt.fr>
+ * @license: GPL
+ *
+ */
+
 namespace IDCI\Bundle\NotificationBundle\Consumer;
 
 use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
@@ -27,39 +35,38 @@ class NotificationProcessingConsumer implements ConsumerInterface
         return $this->notificationManager;
     }
 
+    /**
+     * Execute a pulled notification from rabbitMQ queue
+     *
+     * @param AMQPMessage $message
+     * @throw Exception
+     */
     public function execute(AMQPMessage $message)
     {
-        $countErrors = 0;
         $notificationManager = $this->getNotificationManager();
-        $notificationData = unserialize($message->body);
+        $notificationId = unserialize($message->body);
         $notification = $notificationManager->findOneBy(array(
-            'id'     => $notificationData['notificationId'],
+            'id'     => $notificationId,
             'status' => Notification::STATUS_NEW
         ));
 
         try{
             echo sprintf(
-                '[INFO] Send notifications (%d)',
-                count($notification)
+                '[INFO] Send notification (id : %s)',
+                $notificationId
             )."\r\n";
             $notificationManager->notify($notification);
             if ($notification->getStatus() == Notification::STATUS_ERROR) {
-                $countErrors++;
                 echo sprintf(
-                    '[ERROR] Notification %s not sent',
-                    $notification
+                    '[ERROR] Notification (id : %s) not sent',
+                    $notificationId
                 )."\r\n";
             } else {
                 echo sprintf(
-                    '[COMMENT] Notification %s sent',
-                    $notification
+                    '[COMMENT] Notification (id : %s) sent',
+                    $notificationId
                 )."\r\n";
             }
-            echo sprintf(
-                '[INFO] %d notification(s) processed, %d error(s)',
-                count($notification),
-                $countErrors
-            )."\r\n";
         } catch (\Exception $e) {
             echo sprintf(
                 '[ERROR] %s',
