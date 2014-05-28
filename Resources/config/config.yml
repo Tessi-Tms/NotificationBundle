@@ -16,5 +16,5 @@ old_sound_rabbit_mq:
             connection:       default
             exchange_options: {name: 'notification_processing', type: direct}
             queue_options:    {name: 'notification_processing'}
-            callback:         idci_notification.consumer.notification
+            callback:         idci_notification.consumer.notification_processing_consumer
             qos_options:      {prefetch_size: 0, prefetch_count: 1, global: false}
