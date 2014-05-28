@@ -1,7 +1,7 @@
 services:
     idci_notification.manager.notification:
         class: IDCI\Bundle\NotificationBundle\Manager\NotificationManager
-        arguments: [@doctrine.orm.entity_manager, @event_dispatcher, @old_sound_rabbit_mq.notification_processing_producer]
+        arguments: [@doctrine.orm.entity_manager, @event_dispatcher]
 
     idci_notification.manager.notifierconfiguration:
         class: IDCI\Bundle\NotificationBundle\Manager\NotifierConfigurationManager
@@ -74,6 +74,13 @@ services:
             - { name: idci_notification.notifier, alias: push_android }
 
     ## RabbitMQ Consumer
-    idci_notification.consumer.notification:
+    idci_notification.consumer.notification_processing_consumer:
         class: IDCI\Bundle\NotificationBundle\Consumer\NotificationProcessingConsumer
         arguments: [@idci_notification.manager.notification]
+
+    ## Event listener
+    idci_notification.event_listener.enqueue_notification_listener:
+        class: IDCI\Bundle\NotificationBundle\EventListener\EnqueueNotificationListener
+        arguments: [@old_sound_rabbit_mq.notification_processing_producer]
+        tags:
+            - { name: kernel.event_listener, event: idci_notification.notification.post_create, method: enqueueNotification }
