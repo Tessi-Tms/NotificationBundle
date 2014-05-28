@@ -191,11 +191,6 @@ class NotificationManager extends AbstractManager
 
         $this->getObjectManager()->persist($notification);
         $this->getObjectManager()->flush();
-
-        $this->getEventDispatcher()->dispatch(
-            NotificationEvents::POST_CREATE,
-            new NotificationEvent($notification)
-        );
     }
 
     /**
