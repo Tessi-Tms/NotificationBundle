@@ -8,14 +8,15 @@
  *
  */
 
-namespace IDCI\Bundle\NotificationBundle\EventListener;
+namespace IDCI\Bundle\NotificationBundle\Event\Subscriber;
 
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use OldSound\RabbitMqBundle\RabbitMq\Producer;
 use IDCI\Bundle\NotificationBundle\Event\NotificationEvent;
+use IDCI\Bundle\NotificationBundle\Event\NotificationEvents;
 
-class EnqueueNotificationListener
+class EnqueueNotificationSubscriber implements EventSubscriberInterface
 {
-
     protected $notificationProcessingProducer;
 
     /**
@@ -29,6 +30,18 @@ class EnqueueNotificationListener
     }
 
     /**
+     * GetSubscribedEvents
+     *
+     * @return array
+     */
+    static public function getSubscribedEvents()
+    {
+        return array(
+            NotificationEvents::POST_CREATE => 'enqueueNotification'
+        );
+    }
+
+    /**
      * EnqueueNotification
      *
      * @param NotificationEvent $event
@@ -38,5 +51,4 @@ class EnqueueNotificationListener
         $notificationId = $event->getNotification()->getId();
         $this->notificationProcessingProducer->publish(serialize($notificationId));
     }
-
 }

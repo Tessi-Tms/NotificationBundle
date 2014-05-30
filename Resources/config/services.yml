@@ -79,8 +79,8 @@ services:
         arguments: [@idci_notification.manager.notification]
 
     ## Event listener
-    idci_notification.event_listener.enqueue_notification_listener:
-        class: IDCI\Bundle\NotificationBundle\EventListener\EnqueueNotificationListener
+    idci_notification.subscriber.enqueue_notification_subscriber:
+        class: IDCI\Bundle\NotificationBundle\Event\Subscriber\EnqueueNotificationSubscriber
         arguments: [@old_sound_rabbit_mq.notification_processing_producer]
         tags:
-            - { name: kernel.event_listener, event: idci_notification.notification.post_create, method: enqueueNotification }
+            - { name: kernel.event_subscriber }
