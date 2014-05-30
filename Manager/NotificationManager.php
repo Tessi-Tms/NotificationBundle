@@ -189,8 +189,7 @@ class NotificationManager extends AbstractManager
             ->setContent(json_encode($data['content']))
         ;
 
-        $this->getObjectManager()->persist($notification);
-        $this->getObjectManager()->flush();
+        $this->add($notification);
     }
 
     /**
