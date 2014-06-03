@@ -14,7 +14,6 @@ use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
 use PhpAmqpLib\Message\AMQPMessage;
 use IDCI\Bundle\NotificationBundle\Entity\Notification;
 use IDCI\Bundle\NotificationBundle\Manager\NotificationManager;
-use Symfony\Component\Console\Output\OutputInterface;
 
 class NotificationProcessingConsumer implements ConsumerInterface
 {
@@ -67,6 +66,7 @@ class NotificationProcessingConsumer implements ConsumerInterface
                     $notificationId
                 )."\r\n";
             }
+            $notificationManager->clear();
         } catch (\Exception $e) {
             echo sprintf(
                 '[ERROR] %s',
