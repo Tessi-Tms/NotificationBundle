@@ -37,7 +37,9 @@ class EnqueueNotificationSubscriber implements EventSubscriberInterface
     static public function getSubscribedEvents()
     {
         return array(
-            NotificationEvents::POST_CREATE => 'enqueueNotification'
+            NotificationEvents::POST_CREATE => 'enqueueNotification',
+            NotificationEvents::ENQUEUE     => 'enqueueNotification',
+            NotificationEvents::POST_UPDATE => 'enqueueNotification'
         );
     }
 
@@ -48,7 +50,8 @@ class EnqueueNotificationSubscriber implements EventSubscriberInterface
      */
     public function enqueueNotification(NotificationEvent $event)
     {
-        $notificationId = $event->getNotification()->getId();
-        $this->notificationProcessingProducer->publish(serialize($notificationId));
+        $this->notificationProcessingProducer->publish(serialize(
+            $event->getNotification()->getId()
+        ));
     }
 }
