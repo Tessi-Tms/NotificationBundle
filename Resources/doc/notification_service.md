@@ -30,15 +30,15 @@ Please check : [Several_configurations_for_each_type_of_notifier](configuration_
 ### How to create a Notification ?
 There are 3 methods to create an notification.
 
-####Method 1 : Use a web service.
+#### Method 1 : Use a web service.
 
 | Type   | Path                                                     | Description
 |--------|----------------------------------------------------------|------------------------
 | POST   | [/notifications](api/notification/post_notifications.md) | Create an notification
 
-####Method 2 : Create an interface to manage a notification (CRUD)
+#### Method 2 : Create an interface to manage a notification (CRUD)
 
-####Method 3 : Using [IDCINotificationApiClientBundle](https://github.com/IDCI-Consulting/NotificationApiClientBundle.git).
+#### Method 3 : Using [IDCINotificationApiClientBundle](https://github.com/IDCI-Consulting/NotificationApiClientBundle.git).
 Exemple : Using the command line `tms:notification:notify` to create an email notification.
 ```sh
 $ php app/console tms:notification:notify email '{"notifierAlias": "alias", "to": "me@mymail.com", "cc": "cc1@mymail.com, cc2@mymail.com", "bcc": "bcc@mymail.com", "subject": "notification via command line", "message": "the message to be send", "htmlMessage": "<h1>Titre</h1><p>Message</p>", "attachments": []}'
@@ -55,6 +55,29 @@ Workflow of this command :
 1. Find all notifications with "NEW" status.
 2. Guess the notifier for each type of notification to send.
 3. Send them one by one.
+
+### How to send Notifications using RabbitMQ ?
+
+#### Enqueue Notification
+
+##### Method 1 :
+A Notification will be enqueued automatically when It is added or updated in database.
+
+##### Method 2 : To enqueue all Notifications with status "NEW"
+```sh
+$ php app/console idci:notification:enqueue
+```
+
+#### Method 3 : To enqueue a specific Notification
+```sh
+$ php app/console idci:notification:enqueue --id=123
+```
+Note : The id identifies a Notification to be enqueued. Be careful the status must be "NEW".
+
+#### Method 4 : To enqueue several Notifications
+```sh
+$ php app/console idci:notification:enqueue --id=123 --id=124
+```
 
 Notifier
 --------
@@ -137,7 +160,7 @@ class MyNotifier extends AbstractNotifier
 ```
 Detail : the values in array are used to create form field
 ```
-'field'  => array('text', array('required' => false))
+'field' => array('text', array('required' => false))
 ```
 'field'    : field name
 'text'     : [built-in field type](http://symfony.com/doc/current/book/forms.html#built-in-field-types)
