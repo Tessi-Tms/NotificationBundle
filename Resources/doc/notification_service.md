@@ -68,13 +68,13 @@ A Notification will be enqueued automatically when It is added or updated in dat
 $ php app/console idci:notification:enqueue
 ```
 
-#### Method 3 : To enqueue a specific Notification
+##### Method 3 : To enqueue a specific Notification
 ```sh
 $ php app/console idci:notification:enqueue --id=123
 ```
 Note : The id identifies a Notification to be enqueued. Be careful the status must be "NEW".
 
-#### Method 4 : To enqueue several Notifications
+##### Method 4 : To enqueue several Notifications
 ```sh
 $ php app/console idci:notification:enqueue --id=123 --id=124
 ```
