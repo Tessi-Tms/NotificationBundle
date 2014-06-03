@@ -28,6 +28,12 @@ class RabbitmqCommand extends ContainerAwareCommand
         $this
             ->setName('idci:notification:enqueue')
             ->setDescription('Enqueue notification from spool')
+            ->addOption(
+                'id',
+                null,
+                InputOption::VALUE_REQUIRED | InputOption::VALUE_IS_ARRAY,
+                'Identify Notifications to be enqueued'
+            )
             ->setHelp(<<<EOT
 The <info>%command.name%</info> command enqueues all modified notifications in RabbitMQ queue.
 Here is an example of usage of this command <info>php app/console tms:notification:enqueue</info>
@@ -45,25 +51,52 @@ EOT
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $notificationManager = $this->getContainer()->get('idci_notification.manager.notification');
-
+        $ids = $input->getOption('id');
         $countErrors = 0;
-        $notifications = $notificationManager->findBy(array('status' => Notification::STATUS_NEW));
-        $output->writeln(sprintf("<info>Enqueue notifications (%d)</info>", count($notifications)));
-        foreach($notifications as $notification) {
-            try {
-                $notificationManager->enqueueNotification($notification);
-            } catch (\Exception $e) {
-                $countErrors++;
-                $output->writeln(sprintf(
-                    "<error>Notification %s not enqueued : %s</error>",
-                    $notification,
-                    $e->getMessage()
+        if(count($ids) > 0) {
+            foreach($ids as $id) {
+                $notification = $notificationManager->findOneBy(array(
+                    'id'     => $id,
+                    'status' => Notification::STATUS_NEW
                 ));
+                try {
+                    $output->writeln(sprintf("<info>Enqueue notification (id : %s)</info>", $id));
+                    $notificationManager->enqueueNotification($notification);
+                    $output->writeln(sprintf("<info>Notification (id : %s) enqueued</info>", $id));
+                } catch(\Exception $e) {
+                    $countErrors++;
+                    $output->writeln(sprintf(
+                        "<error>Enqueue notification (id : %s) failed : [%s]</error>",
+                        $id,
+                        $e->getMessage()
+                    ));
+                }
             }
+            $output->writeln(sprintf(
+                '<comment>%d notification(s) processed, %d error(s)</comment>',
+                count($ids),
+                $countErrors
+            ));
+        } else {
+            $notifications = $notificationManager->findBy(array('status' => Notification::STATUS_NEW));
+            $output->writeln(sprintf("<info>Enqueue notifications (%d)</info>", count($notifications)));
+            foreach($notifications as $notification) {
+                try {
+                    $notificationManager->enqueueNotification($notification);
+                } catch (\Exception $e) {
+                    $countErrors++;
+                    $output->writeln(sprintf(
+                        "<error>Enqueue notification (id : %s) failed : %s</error>",
+                        $notification->getId(),
+                        $e->getMessage()
+                    ));
+                }
+            }
+            $output->writeln(sprintf(
+                '<comment>%d notification(s) processed, %d error(s)</comment>',
+                count($notifications),
+                $countErrors
+            ));
         }
-        $output->writeln(sprintf('%d notification(s) processed, %d error(s)',
-            count($notifications),
-            $countErrors
-        ));
     }
 }
