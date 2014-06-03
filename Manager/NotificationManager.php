@@ -211,4 +211,25 @@ class NotificationManager extends AbstractManager
         $this->getObjectManager()->persist($notification);
         $this->getObjectManager()->flush();
     }
+
+    /**
+     * EnqueueNotification
+     *
+     * @param Notification $notification
+     */
+    public function enqueueNotification(Notification $notification)
+    {
+        $this->getEventDispatcher()->dispatch(
+            NotificationEvents::ENQUEUE,
+            new NotificationEvent($notification)
+        );
+    }
+
+    /**
+     * Clear the ObjectManager
+     */
+    public function clear()
+    {
+        $this->getObjectManager()->clear();
+    }
 }
