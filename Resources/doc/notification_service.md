@@ -174,3 +174,71 @@ idci_notification.notifier.mynotifier:
     tags:
         - { name: idci_notification.notifier, alias: my_notifier }
 ```
+
+RabbitMQ
+--------
+To see the [complete documentation](https://github.com/videlalvaro/RabbitMqBundle#producers-consumers-what)
+
+### What is producer and a consumer ?
+In a messaging application, the process sending messages to the broker is called producer while the process receiving those messages is called consumer. In your application you will have several of them that you can list under their respective entries in the configuration.
+[source](https://github.com/videlalvaro/RabbitMqBundle#producers-consumers-what)
+
+### Producer
+A producer will be used to send messages to the server.
+
+#### How to enqueue a message.
+Exemple :
+```php
+public function indexAction($name)
+{
+    //...
+    $notificationId = 123;
+    $this->get('old_sound_rabbit_mq.notification_processing_producer')->publish(serialize($notificationId));
+}
+```
+
+### Consumer
+A consumer will connect to the server and start a loop waiting for incoming messages to process.
+#### Step 1 : How to create a consumer
+```php
+<?php
+//...
+
+namespace IDCI\Bundle\NotificationBundle\Consumer;
+
+use OldSound\RabbitMqBundle\RabbitMq\ConsumerInterface;
+use PhpAmqpLib\Message\AMQPMessage;
+
+class YourConsumer implements ConsumerInterface
+{
+    /**
+     * Execute an incoming message from rabbitMQ queue
+     *
+     * @param AMQPMessage $message
+     */
+    public function execute(AMQPMessage $message)
+    {
+        /*
+        You have to implemente the behavior of the consumer when it receives a message.
+        */
+    }
+}
+```
+#### Step 2 : How to configure a consumer
+Add your consumer in section callback this way : idci_notification.consumer.your_consumer
+```yml
+consumers:
+    notification_processing:
+        connection:       default
+        exchange_options: {name: 'notification_processing', type: direct}
+        queue_options:    {name: 'notification_processing'}
+        callback:         idci_notification.consumer.your_consumer
+        qos_options:      {prefetch_size: 0, prefetch_count: 1, global: false}
+```
+
+#### Step 3 : How to run the consumer
+You have to specify the number of messages the consumer should process.
+exemple : Consumer will process 3 messages
+```sh
+$ php app/console rabbitmq:consumer -m 3 notification_processing
+```
