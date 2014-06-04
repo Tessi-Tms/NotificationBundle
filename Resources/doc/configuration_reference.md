@@ -216,7 +216,6 @@ For more details about [notiferAlias](notification_service.md#what-is-the-role-o
 
 RabbitMQ
 --------
-# Connection configuration
 
 ### Parameters
 | Parameter   | Type    | Required | Description
