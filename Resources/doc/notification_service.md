@@ -162,8 +162,8 @@ Detail : the values in array are used to create form field
 ```
 'field' => array('text', array('required' => false))
 ```
-'field'    : field name
-'text'     : [built-in field type](http://symfony.com/doc/current/book/forms.html#built-in-field-types)
+'field'    : field name   
+'text'     : [built-in field type](http://symfony.com/doc/current/book/forms.html#built-in-field-types)   
 'required' : field type options ([required option](http://symfony.com/doc/current/book/forms.html#field-type-options))
 
 Now declare your notifier as service:
@@ -181,7 +181,7 @@ To see the [complete documentation](https://github.com/videlalvaro/RabbitMqBundl
 
 ### What is producer and a consumer ?
 In a messaging application, the process sending messages to the broker is called producer while the process receiving those messages is called consumer. In your application you will have several of them that you can list under their respective entries in the configuration.
-[source](https://github.com/videlalvaro/RabbitMqBundle#producers-consumers-what)
+[[source]](https://github.com/videlalvaro/RabbitMqBundle#producers-consumers-what)
 
 ### Producer
 A producer will be used to send messages to the server.
@@ -189,6 +189,8 @@ A producer will be used to send messages to the server.
 #### How to enqueue a message.
 Exemple :
 ```php
+<?php
+//...
 public function indexAction($name)
 {
     //...
@@ -237,7 +239,7 @@ consumers:
 ```
 
 #### Step 3 : How to run the consumer
-You have to specify the number of messages the consumer should process.
+You have to specify the number of messages the consumer should process.   
 exemple : Consumer will process 3 messages
 ```sh
 $ php app/console rabbitmq:consumer -m 3 notification_processing
