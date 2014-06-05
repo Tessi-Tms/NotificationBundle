@@ -7,14 +7,30 @@ da_api_client:
 
 # RabbitMQ configuration
 old_sound_rabbit_mq:
+    connections:
+        notification:
+            host:     %old_sound_rabbit_mq.notification.host%
+            port:     %old_sound_rabbit_mq.notification.port%
+            user:     %old_sound_rabbit_mq.notification.user%
+            password: %old_sound_rabbit_mq.notification.password%
+            vhost:    %old_sound_rabbit_mq.notification.vhost%
+            lazy:     true
     producers:
-        notification_processing:
-            connection:       default
-            exchange_options: {name: 'notification_processing', type: direct}
+        notification:
+            connection: notification
+            exchange_options:
+                name: notification
+                type: direct
     consumers:
-        notification_processing:
-            connection:       default
-            exchange_options: {name: 'notification_processing', type: direct}
-            queue_options:    {name: 'notification_processing'}
-            callback:         idci_notification.consumer.notification_processing_consumer
-            qos_options:      {prefetch_size: 0, prefetch_count: 1, global: false}
+        notification:
+            connection: notification
+            exchange_options:
+                name: notification
+                type: direct
+            queue_options:
+                name: notification
+            callback: idci_notification.consumer.notification_consumer
+            qos_options:
+                prefetch_size: 0
+                prefetch_count: 1
+                global: false
