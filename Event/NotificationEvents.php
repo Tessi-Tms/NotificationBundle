@@ -20,6 +20,4 @@ final class NotificationEvents
 
     const PRE_DELETE =  'idci_notification.notification.pre_delete';
     const POST_DELETE = 'idci_notification.notification.post_delete';
-
-    const ENQUEUE = 'idci_notification.notification.enqueue';
 }
