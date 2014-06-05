@@ -12,6 +12,7 @@ namespace IDCI\Bundle\NotificationBundle\Event\Subscriber;
 
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use OldSound\RabbitMqBundle\RabbitMq\Producer;
+use IDCI\Bundle\NotificationBundle\Entity\Notification;
 use IDCI\Bundle\NotificationBundle\Event\NotificationEvent;
 use IDCI\Bundle\NotificationBundle\Event\NotificationEvents;
 
@@ -38,7 +39,6 @@ class EnqueueNotificationSubscriber implements EventSubscriberInterface
     {
         return array(
             NotificationEvents::POST_CREATE => 'enqueueNotification',
-            NotificationEvents::ENQUEUE     => 'enqueueNotification',
             NotificationEvents::POST_UPDATE => 'enqueueNotification'
         );
     }
@@ -50,8 +50,8 @@ class EnqueueNotificationSubscriber implements EventSubscriberInterface
      */
     public function enqueueNotification(NotificationEvent $event)
     {
-        $this->notificationProcessingProducer->publish(serialize(
-            $event->getNotification()->getId()
-        ));
+        if (Notification::STATUS_NEW == $event->getNotification()->getStatus()) {
+            $this->notificationProcessingProducer->publish($event->getNotification()->getId());
+        }
     }
 }
