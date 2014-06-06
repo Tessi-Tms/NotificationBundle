@@ -76,7 +76,7 @@ services:
     ## RabbitMQ Consumer
     idci_notification.consumer.notification_consumer:
         class: IDCI\Bundle\NotificationBundle\Consumer\NotificationConsumer
-        arguments: [@idci_notification.manager.notification]
+        arguments: [@idci_notification.manager.notification, @logger]
 
     ## Event listener
     idci_notification.subscriber.enqueue_notification_subscriber:
