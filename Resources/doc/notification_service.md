@@ -162,8 +162,8 @@ Detail : the values in array are used to create form field
 ```
 'field' => array('text', array('required' => false))
 ```
-'field'    : field name   
-'text'     : [built-in field type](http://symfony.com/doc/current/book/forms.html#built-in-field-types)   
+'field'    : field name
+'text'     : [built-in field type](http://symfony.com/doc/current/book/forms.html#built-in-field-types)
 'required' : field type options ([required option](http://symfony.com/doc/current/book/forms.html#field-type-options))
 
 Now declare your notifier as service:
@@ -186,7 +186,19 @@ In a messaging application, the process sending messages to the broker is called
 ### Producer
 A producer will be used to send messages to the server.
 
-#### How to enqueue a message.
+#### Step 1 : How to configure a producer
+```yml
+old_sound_rabbit_mq:
+    producers:
+        your_producer_id:
+            connection: connectionId
+            exchange_options:
+                name: connectionId
+                type: direct
+```
+Note : In this example your service container will contain the service `old_sound_rabbit_mq.your_producer_id_producer`
+
+#### Step 2 : How to use a producer.
 Exemple :
 ```php
 <?php
@@ -194,14 +206,14 @@ Exemple :
 public function indexAction($name)
 {
     //...
-    $notificationId = 123;
-    $this->get('old_sound_rabbit_mq.notification_processing_producer')->publish(serialize($notificationId));
+    $message = 'test';
+    $this->get('old_sound_rabbit_mq.your_producer_id_producer')->publish($message);
 }
 ```
 
 ### Consumer
 A consumer will connect to the server and start a loop waiting for incoming messages to process.
-#### Step 1 : How to create a consumer
+#### Step 1 : How to create a callback for a consumer
 ```php
 <?php
 //...
@@ -226,21 +238,70 @@ class YourConsumer implements ConsumerInterface
     }
 }
 ```
-#### Step 2 : How to configure a consumer
-Add your consumer in section callback this way : idci_notification.consumer.your_consumer
+#### Step 2 : Declare this callback as a service
 ```yml
-consumers:
-    notification_processing:
-        connection:       default
-        exchange_options: {name: 'notification_processing', type: direct}
-        queue_options:    {name: 'notification_processing'}
-        callback:         idci_notification.consumer.your_consumer
-        qos_options:      {prefetch_size: 0, prefetch_count: 1, global: false}
+idci_notification.consumer.your_consumer:
+    class: IDCI\Bundle\NotificationBundle\Consumer\YourConsumer
+    arguments: []
 ```
 
-#### Step 3 : How to run the consumer
-You have to specify the number of messages the consumer should process.   
+#### Step 3 : How to configure a consumer
+Add this callback to a consumer : idci_notification.consumer.your_consumer
+```yml
+old_sound_rabbit_mq:
+    consumers:
+        your_consumer_id:
+            connection: connectionId
+            exchange_options:
+                name: connectionId
+                type: direct
+            queue_options:
+                name: connectionId
+            callback: idci_notification.consumer.your_consumer
+            qos_options:
+                prefetch_size: 0
+                prefetch_count: 1
+                global: false
+```
+Note : In this example your service container will contain the service `old_sound_rabbit_mq.your_consumer_id_consumer`
+
+#### Step 4 : How to run the consumer
+You have to specify the number of messages the consumer should process.
 exemple : Consumer will process 3 messages
 ```sh
-$ php app/console rabbitmq:consumer -m 3 notification_processing
+$ php app/console rabbitmq:consumer -m 3 connectionId
+```
+
+### Overview of RabbitMQ configuration
+```yml
+# ...
+# RabbitMQ configuration
+old_sound_rabbit_mq:
+    connections:
+        connectionId:
+            host:     localhost
+            port:     5672
+            user:     guest
+            password: guest
+            vhost:    /
+            lazy:     true
+    producers:
+        your_producer_id:
+            connection: connectionId
+            exchange_options:
+                name: connectionId
+                type: direct
+    consumers:
+        your_consumer_id:
+            connection: connectionId
+            exchange_options:
+                name: connectionId
+                type: direct
+            queue_options:
+                name: connectionId
+            callback: idci_notification.consumer.your_consumer
+            qos_options:
+                prefetch_size: 0
+                prefetch_count: 1
+                global: false
 ```

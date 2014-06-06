@@ -214,36 +214,6 @@ idci_notification:
 Note : This possibility allows to have a flexible configuration. When a notification is received with an notifierAlias you can use it to choose which configuration has to be used.
 For more details about [notiferAlias](notification_service.md#what-is-the-role-of-a-notifieralias-).
 
-RabbitMQ
---------
-
-### Parameters
-| Parameter   | Type    | Required | Description
-|-------------|---------|----------|--------------
-| host        | string  | yes      | Local host
-| port        | integer | yes      | List of ports on which to listen for AMQP connections (without SSL).
-| user        | string  | yes      | User name to create when RabbitMQ creates a new database from scratch.
-| password    | string  | yes      | Password for the default user.
-| vhost       | string  | yes      | Virtual host to create when RabbitMQ creates a new database from scratch.
-| lazy        | boolean | yes      | Enable/disable lazy connections
-
-### Connection configuration
-Add the RabbitMQ default configuration in `app/config/config.yml`
-```yml
-#...
-# RabbitMQ configuration
-old_sound_rabbit_mq:
-    connections:
-        default:
-            host:     'localhost'
-            port:     5672
-            user:     'guest'
-            password: 'guest'
-            vhost:    '/'
-            lazy:     false
-```
-For more details please have a look on this [link](https://github.com/videlalvaro/RabbitMqBundle#usage).
-
 Overview of `app/config/config.yml`
 -----------------------------------
 ```yml
@@ -306,16 +276,5 @@ idci_notification:
             configurations:
                 default:
                     apiKey: 'your_api_key'
-
-# RabbitMQ configuration
-old_sound_rabbit_mq:
-    connections:
-        default:
-            host:     'localhost'
-            port:     5672
-            user:     'guest'
-            password: 'guest'
-            vhost:    '/'
-            lazy:     false
 ```
 
